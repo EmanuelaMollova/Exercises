@@ -1,0 +1,12 @@
+.header {
+    font-weight: bolder;
+    background-color: #CCCCD0;
+    text-align: center;
+}
+
+.content {
+    background-color: #F2F2F7;
+    text-align: center;
+    vertical-align: central;
+    padding-top: 3px;
+}

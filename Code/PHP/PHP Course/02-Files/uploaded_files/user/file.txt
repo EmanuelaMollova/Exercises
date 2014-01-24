@@ -1,0 +1,31 @@
+When a program works, it is beautiful. 
+The art of programming is the skill of controlling complexity. 
+The great program is subdued, made simple in its complexity.
+
+***
+
+Whatever you can do, or dream you can do, begin it. 
+Boldness has genius, power, and magic in it. 
+Begin it now.
+
+Faust, Johann Wolfgang von Goethe
+
+***
+
+Simplicity is the ultimate sophistication.
+
+Leonardo Da Vinci
+
+***
+
+Always code as if the guy who ends up maintaining your code will be a violent psychopath who knows where you live. 
+
+Martin Golding
+
+***
+
+Most of you are familiar with the virtues of a programmer. 
+There are three, of course: laziness, impatience, and hubris. 
+
+Larry Wall
+

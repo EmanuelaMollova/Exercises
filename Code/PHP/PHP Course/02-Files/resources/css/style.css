@@ -1,0 +1,102 @@
+﻿body {
+	font-family: 'Underdog', cursive;
+	background-color: #F7F3C5;
+	text-align: center;
+}
+
+form, table {
+	margin-left: auto; 
+    margin-right: auto;
+}
+
+form {
+	width: 45%;
+}
+
+input {
+	border-radius: 5px;
+	width: 150px;
+	height: 30px;
+	border: solid 1px #BFBDBD;
+    box-shadow: 2px 2px 0 #828181 inset;
+	padding-left: 7px;
+	margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+input[type=textarea] {
+    width: 300px;
+    height: 50px;
+}
+
+input[type=submit], {
+    background-color: #E5E4E2;
+    box-shadow: -1px 2px #FEFCFF inset;
+	margin: 17px;
+}
+
+fieldset{
+	border-radius: 8px;
+	border:2px solid black;
+}
+
+#file {
+    width: 300px;
+}
+
+legend, label, th, td, .link, h3 {
+	padding: 12px;
+}
+
+table {
+	width: 65%;
+	border-collapse: collapse;
+	text-align: center;
+	margin-bottom: 40px;
+}
+
+th {
+	border-bottom: 2px solid black;
+}
+
+tr:nth-child(2n) {
+	background-color: #FEFCFF;
+}
+
+tr:nth-child(2n+1) {
+	background-color: #E5E4E2;
+}
+
+.bold {
+	font-weight: bold;
+}
+
+.note {
+	border-radius: 5px;
+	width: 400px;
+	height: 40px;
+	line-height: 40px;
+	margin: auto;
+	margin-bottom: 35px;
+}
+
+.error {
+	background-color: #F7E7DC;
+	border: solid 2px #FAC3C6;
+}
+
+.success {
+	background-color: #D6F4DD;
+	border: solid 2px #BAF6C8;
+}
+
+.logout {
+    position:absolute;
+    top:35px;
+    right:35px;
+}
+
+.icon {
+    width: 17px;
+    height: 17px;
+}

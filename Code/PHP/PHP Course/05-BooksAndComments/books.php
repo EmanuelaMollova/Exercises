@@ -1,0 +1,181 @@
+﻿<?php
+$title = 'Книги';
+include 'includes/header.php';
+
+if(isset($_SESSION['isLogged']) && $_SESSION['isLogged'] == true) {
+    echo '<h1>Здравейте, '.$_SESSION['username'].'!</h1>';
+}
+
+// If a concrete author is selected, set the needed variables.
+if(isset($_GET['id'])) {
+    $id = normalize($connection, 'id', 'GET'); 
+
+    if(!$id || !is_numeric($id)) {
+        header('Location: books.php');
+    }
+}
+
+// If sorting criteria is given, set the needed variables.
+$error = false;
+if(isset($_GET['field']) && isset($_GET['method'])) {
+    $field = normalize($connection, 'field', 'GET');
+    $method = normalize($connection, 'method', 'GET');
+
+    if(($field != 'book_title' && $field != 'author_name') || ($method != 'ASC' && $method != 'DESC')) {
+        printMessage('Невалидни критерии за сортиране.');
+        $error = true;
+    }
+}
+
+if (!$error) {
+    // Start building the sql for the query.
+    $sql = 'SELECT * FROM books LEFT JOIN books_authors ON books.book_id = books_authors.book_id 
+            LEFT JOIN authors ON books_authors.author_id = authors.author_id'; 
+
+    // If search criteria is given, set the needed variables and start adding clauses to the sql.
+    if(isset($_POST['search'])) {
+        $searchTitle = normalize($connection, 'search');
+        $sql .= ' WHERE books.book_title LIKE "%'.$searchTitle.'%"';
+    }
+
+    // If concrete author is selected, alter the sql.
+    if(isset($id)) {
+        if(isset($_POST['search'])) {
+            $sql .= 'AND authors.author_id='.$id;
+        } else {
+            $sql .= ' WHERE authors.author_id='.$id;
+        }
+    }
+
+    // If sorting criteria is given, alter the sql.
+    if(isset($field)) {
+        $sql .= ' ORDER BY '.$field.' '.$method;
+    }
+
+    $qAll = mysqli_query($connection, $sql);
+    $rowsNumberAll = mysqli_num_rows($qAll);
+
+    if($rowsNumberAll == 0) {
+        printMessage('Няма книги, отговарящи на зададените критерии.'); 
+    } else {
+    ?>
+
+        <h1>Книги
+
+        <?php
+        // Change page's title if a concrete author is selected.
+        if (isset($id)) {
+            $sqlName = 'SELECT author_name FROM authors WHERE author_id='.$id;
+            $qName = mysqli_query($connection, $sqlName);
+
+            $rowNumberName = mysqli_num_rows($qName);
+            if($rowNumberName == 1) {
+                $resultName = $qName->fetch_assoc();
+            } else {
+                printError();
+            }
+
+            echo 'на '.$resultName['author_name'];
+        }
+        
+        echo '</h1>';
+
+        if(isset($id) || isset($_POST['search'])) {
+            printLink('glyphicons_435_undo', 'books', 'Обратно към всички книги');
+        }
+        ?>
+
+        <table>
+            <tr>
+                <th>Книга</th>
+                <th>Автор(и)</th>
+                <th>Коментари</th>
+            </tr>
+
+            <?php
+            // Print the books, which meet all criterias.
+            while($result = $qAll->fetch_assoc()) {
+                if(isset($id)) {
+                    // If a concrete author is selected, find in which books this author participated.
+                    $books[] = $result['book_id'];
+                } else {
+                    $arr[$result['book_id']]['book_title'] = $result['book_title'];
+                    $arr[$result['book_id']]['book_id'] = $result['book_id'];
+                    $arr[$result['book_id']]['authors'][] = $result['author_name'];
+                    $ids[$result['author_name']] = $result['author_id'];
+                }
+            }
+
+            if(isset($id)) {
+                // Create a new query for taking all the authors of the books, 
+                // in which the concrete author participated.
+                $sql = 'SELECT * FROM books LEFT JOIN books_authors ON books.book_id = books_authors.book_id 
+                        LEFT JOIN authors ON books_authors.author_id = authors.author_id WHERE';
+
+                foreach($books as $bookId) {
+                    $sql .= ' books.book_id = '.$bookId.' OR';
+                }
+                $sql = rtrim($sql, ' OR');
+
+                $qNew = mysqli_query($connection, $sql);
+                $rowsNumberNew = mysqli_num_rows($qNew);
+                if($rowsNumberNew > 0) {
+                    while($result = $qNew->fetch_assoc()) {
+                        $arr[$result['book_id']]['book_title'] = $result['book_title'];
+                        $arr[$result['book_id']]['book_id'] = $result['book_id'];
+                        $arr[$result['book_id']]['authors'][] = $result['author_name'];
+                        $ids[$result['author_name']] = $result['author_id'];
+                    }
+                } else {
+                    printError();
+                }
+            }
+
+            // Finally print all books, meeting the criterias.
+            foreach ($arr as $book) {
+                echo '<tr><td><a href="book_with_comments.php?id='.$book['book_id'].'">'.$book['book_title'].'</a></td><td>';
+                
+                $allAuthors = '';
+                foreach ($book['authors'] as $author) {
+                    $allAuthors .= '<a href="books.php?id='.$ids[$author].'">'.$author.'</a>, ';
+                }
+                $allAuthors = rtrim($allAuthors, ', ');
+                echo $allAuthors;
+
+                $qCount = mysqli_query($connection, 'SELECT COUNT(comment_id) FROM comments WHERE book_id = "'.$book['book_id'].'"');
+                $countComments = $qCount->fetch_assoc();
+
+                echo '<td>'.$countComments['COUNT(comment_id)'].'</td>';
+                echo '</td></tr>';
+            }
+
+            echo '<tr>';
+            if(!isset($_POST['search'])) {
+                if(isset($id)) {
+                    printSorting('book_title', $id);
+                    printSorting('author_name', $id);
+                } else {
+                    printSorting('book_title');
+                    printSorting('author_name');
+                }
+                echo '<td></td>';
+            }
+            echo '</tr>';
+    }
+?>
+    </table>
+
+    <form method=POST>
+        <fieldset>
+            <legend><img src="resources/img/glyphicons_027_search.png"> Търсене на книга</legend>
+            <input type="text" name="search" id="title"><br>
+            <input type="submit" value="Търсене">
+
+        </fieldset>
+    </form>
+
+<?php
+}		
+
+include 'includes/footer.php';
+?>

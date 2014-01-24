@@ -1,0 +1,3 @@
+file.txt<EOF>Малко цитати
+index.rar<EOF>HTML страница
+php.pdf<EOF>Полезно за начинаещи в PHP
